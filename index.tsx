@@ -1,3 +1,4 @@
+```tsx
 import { useState } from 'react';
 import {
   FlatList,
@@ -12,6 +13,7 @@ import {
 type Task = {
   id: string;
   title: string;
+  completed: boolean;
 };
 
 export default function TodoListScreen() {
@@ -23,9 +25,10 @@ export default function TodoListScreen() {
       return;
     }
 
-    const newTask = {
+    const newTask: Task = {
       id: Date.now().toString(),
       title: task.trim(),
+      completed: false,
     };
 
     setTasks([...tasks, newTask]);
@@ -34,6 +37,16 @@ export default function TodoListScreen() {
 
   const deleteTask = (id: string) => {
     setTasks(tasks.filter((item) => item.id !== id));
+  };
+
+  const toggleTask = (id: string) => {
+    setTasks(
+      tasks.map((item) =>
+        item.id === id
+          ? { ...item, completed: !item.completed }
+          : item
+      )
+    );
   };
 
   return (
@@ -50,7 +63,6 @@ export default function TodoListScreen() {
 
       {/* Input Section */}
       <View style={styles.inputContainer}>
-
         <TextInput
           style={styles.input}
           placeholder="Enter a new task..."
@@ -67,7 +79,6 @@ export default function TodoListScreen() {
             Add Task
           </Text>
         </TouchableOpacity>
-
       </View>
 
       {/* List Header */}
@@ -89,7 +100,6 @@ export default function TodoListScreen() {
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-
             <View style={styles.emptyIconCircle}>
               <Text style={styles.emptyIcon}>
                 ✓
@@ -103,22 +113,35 @@ export default function TodoListScreen() {
             <Text style={styles.emptyText}>
               Add your first task above
             </Text>
-
           </View>
         }
         renderItem={({ item }) => (
           <View style={styles.taskCard}>
 
-            <View style={styles.taskCircle}>
+            {/* Complete Button */}
+            <TouchableOpacity
+              style={[
+                styles.taskCircle,
+                item.completed && styles.completedCircle,
+              ]}
+              onPress={() => toggleTask(item.id)}
+            >
               <Text style={styles.check}>
-                ✓
+                {item.completed ? '✓' : ''}
               </Text>
-            </View>
+            </TouchableOpacity>
 
-            <Text style={styles.taskText}>
+            {/* Task Text */}
+            <Text
+              style={[
+                styles.taskText,
+                item.completed && styles.completedText,
+              ]}
+            >
               {item.title}
             </Text>
 
+            {/* Delete Button */}
             <TouchableOpacity
               style={styles.deleteButton}
               onPress={() => deleteTask(item.id)}
@@ -249,8 +272,12 @@ const styles = StyleSheet.create({
     marginRight: 13,
   },
 
+  completedCircle: {
+    backgroundColor: '#9B7BC1',
+  },
+
   check: {
-    color: '#9B7BC1',
+    color: '#FFFFFF',
     fontSize: 19,
     fontWeight: '700',
   },
@@ -260,6 +287,11 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#51465B',
     paddingRight: 10,
+  },
+
+  completedText: {
+    textDecorationLine: 'line-through',
+    color: '#9A8FA8',
   },
 
   deleteButton: {
@@ -315,3 +347,4 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
+```
