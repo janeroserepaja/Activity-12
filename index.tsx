@@ -49,6 +49,10 @@ export default function TodoListScreen() {
     );
   };
 
+  const completedTasks = tasks.filter(
+    (item) => item.completed
+  ).length;
+
   return (
     <SafeAreaView style={styles.container}>
 
@@ -58,6 +62,10 @@ export default function TodoListScreen() {
 
         <Text style={styles.subtitle}>
           Stay organized and get things done
+        </Text>
+
+        <Text style={styles.progress}>
+          {completedTasks} of {tasks.length} tasks completed
         </Text>
       </View>
 
@@ -185,6 +193,13 @@ const styles = StyleSheet.create({
     color: '#8A78A6',
     marginTop: 8,
     textAlign: 'center',
+  },
+
+  progress: {
+    fontSize: 12,
+    color: '#9B7BC1',
+    fontWeight: '600',
+    marginTop: 8,
   },
 
   /* Input */
