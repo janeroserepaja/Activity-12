@@ -64,7 +64,11 @@ export default function TodoListScreen() {
           Stay organized and get things done
         </Text>
 
-        <Text style={styles.progress}>
+        <Text
+          style={styles.progress}
+          accessibilityLabel={`${completedTasks} of ${tasks.length} tasks completed`}
+          accessibilityLiveRegion="polite"
+        >
           {completedTasks} of {tasks.length} tasks completed
         </Text>
       </View>
@@ -77,11 +81,18 @@ export default function TodoListScreen() {
           placeholderTextColor="#9A8FA8"
           value={task}
           onChangeText={setTask}
+          accessibilityLabel="New task"
+          accessibilityHint="Enter the name of the task you want to add."
+          returnKeyType="done"
+          onSubmitEditing={addTask}
         />
 
         <TouchableOpacity
           style={styles.addButton}
           onPress={addTask}
+          accessibilityRole="button"
+          accessibilityLabel="Add task"
+          accessibilityHint="Adds the entered task to your task list. Empty tasks are not added."
         >
           <Text style={styles.addButtonText}>
             Add Task
@@ -95,7 +106,10 @@ export default function TodoListScreen() {
           My Tasks
         </Text>
 
-        <Text style={styles.taskCount}>
+        <Text
+          style={styles.taskCount}
+          accessibilityLabel={`${tasks.length} ${tasks.length === 1 ? 'task' : 'tasks'} in the list`}
+        >
           {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}
         </Text>
       </View>
@@ -108,7 +122,10 @@ export default function TodoListScreen() {
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <View style={styles.emptyIconCircle}>
+            <View
+              style={styles.emptyIconCircle}
+              accessible={false}
+            >
               <Text style={styles.emptyIcon}>
                 ✓
               </Text>
@@ -133,8 +150,21 @@ export default function TodoListScreen() {
                 item.completed && styles.completedCircle,
               ]}
               onPress={() => toggleTask(item.id)}
+              accessibilityRole="checkbox"
+              accessibilityLabel={`Mark task "${item.title}" as ${item.completed ? 'incomplete' : 'complete'}`}
+              accessibilityHint={
+                item.completed
+                  ? 'Double tap to mark this task as incomplete.'
+                  : 'Double tap to mark this task as complete.'
+              }
+              accessibilityState={{
+                checked: item.completed,
+              }}
             >
-              <Text style={styles.check}>
+              <Text
+                style={styles.check}
+                accessible={false}
+              >
                 {item.completed ? '✓' : ''}
               </Text>
             </TouchableOpacity>
@@ -153,8 +183,14 @@ export default function TodoListScreen() {
             <TouchableOpacity
               style={styles.deleteButton}
               onPress={() => deleteTask(item.id)}
+              accessibilityRole="button"
+              accessibilityLabel={`Delete task "${item.title}"`}
+              accessibilityHint="Removes this task from your task list."
             >
-              <Text style={styles.deleteText}>
+              <Text
+                style={styles.deleteText}
+                accessible={false}
+              >
                 ×
               </Text>
             </TouchableOpacity>
