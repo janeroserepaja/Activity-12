@@ -1,4 +1,3 @@
-```tsx
 import { useState } from 'react';
 import {
   FlatList,
@@ -19,6 +18,7 @@ type Task = {
 export default function TodoListScreen() {
   const [task, setTask] = useState('');
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [filter, setFilter] = useState('All');
 
   const addTask = () => {
     if (task.trim() === '') {
@@ -53,10 +53,21 @@ export default function TodoListScreen() {
     (item) => item.completed
   ).length;
 
+  const filteredTasks = tasks.filter((item) => {
+    if (filter === 'Pending') {
+      return !item.completed;
+    }
+
+    if (filter === 'Completed') {
+      return item.completed;
+    }
+
+    return true;
+  });
+
   return (
     <SafeAreaView style={styles.container}>
 
-      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>My Task List</Text>
 
@@ -64,16 +75,11 @@ export default function TodoListScreen() {
           Stay organized and get things done
         </Text>
 
-        <Text
-          style={styles.progress}
-          accessibilityLabel={`${completedTasks} of ${tasks.length} tasks completed`}
-          accessibilityLiveRegion="polite"
-        >
+        <Text style={styles.progress}>
           {completedTasks} of {tasks.length} tasks completed
         </Text>
       </View>
 
-      {/* Input Section */}
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
@@ -81,8 +87,6 @@ export default function TodoListScreen() {
           placeholderTextColor="#9A8FA8"
           value={task}
           onChangeText={setTask}
-          accessibilityLabel="New task"
-          accessibilityHint="Enter the name of the task you want to add."
           returnKeyType="done"
           onSubmitEditing={addTask}
         />
@@ -90,9 +94,6 @@ export default function TodoListScreen() {
         <TouchableOpacity
           style={styles.addButton}
           onPress={addTask}
-          accessibilityRole="button"
-          accessibilityLabel="Add task"
-          accessibilityHint="Adds the entered task to your task list. Empty tasks are not added."
         >
           <Text style={styles.addButtonText}>
             Add Task
@@ -100,76 +101,68 @@ export default function TodoListScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* List Header */}
-      <View style={styles.listHeader}>
-        <Text style={styles.listTitle}>
-          My Tasks
-        </Text>
+      <View style={styles.filterContainer}>
+        {['All', 'Pending', 'Completed'].map((item) => (
+          <TouchableOpacity
+            key={item}
+            style={[
+              styles.filterButton,
+              filter === item && styles.activeFilter,
+            ]}
+            onPress={() => setFilter(item)}
+          >
+            <Text
+              style={[
+                styles.filterText,
+                filter === item && styles.activeFilterText,
+              ]}
+            >
+              {item}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
 
-        <Text
-          style={styles.taskCount}
-          accessibilityLabel={`${tasks.length} ${tasks.length === 1 ? 'task' : 'tasks'} in the list`}
-        >
-          {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}
+      <View style={styles.listHeader}>
+        <Text style={styles.listTitle}>My Tasks</Text>
+        <Text style={styles.taskCount}>
+          {filteredTasks.length} tasks
         </Text>
       </View>
 
-      {/* Task List */}
       <FlatList
-        data={tasks}
+        data={filteredTasks}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <View
-              style={styles.emptyIconCircle}
-              accessible={false}
-            >
-              <Text style={styles.emptyIcon}>
-                ✓
-              </Text>
-            </View>
+            <Text style={styles.emptyIcon}>✓</Text>
 
             <Text style={styles.emptyTitle}>
-              No tasks yet
+              No tasks found
             </Text>
 
             <Text style={styles.emptyText}>
-              Add your first task above
+              Add a task or select another filter.
             </Text>
           </View>
         }
         renderItem={({ item }) => (
           <View style={styles.taskCard}>
 
-            {/* Complete Button */}
             <TouchableOpacity
               style={[
                 styles.taskCircle,
                 item.completed && styles.completedCircle,
               ]}
               onPress={() => toggleTask(item.id)}
-              accessibilityRole="checkbox"
-              accessibilityLabel={`Mark task "${item.title}" as ${item.completed ? 'incomplete' : 'complete'}`}
-              accessibilityHint={
-                item.completed
-                  ? 'Double tap to mark this task as incomplete.'
-                  : 'Double tap to mark this task as complete.'
-              }
-              accessibilityState={{
-                checked: item.completed,
-              }}
             >
-              <Text
-                style={styles.check}
-                accessible={false}
-              >
+              <Text style={styles.check}>
                 {item.completed ? '✓' : ''}
               </Text>
             </TouchableOpacity>
 
-            {/* Task Text */}
             <Text
               style={[
                 styles.taskText,
@@ -179,20 +172,11 @@ export default function TodoListScreen() {
               {item.title}
             </Text>
 
-            {/* Delete Button */}
             <TouchableOpacity
               style={styles.deleteButton}
               onPress={() => deleteTask(item.id)}
-              accessibilityRole="button"
-              accessibilityLabel={`Delete task "${item.title}"`}
-              accessibilityHint="Removes this task from your task list."
             >
-              <Text
-                style={styles.deleteText}
-                accessible={false}
-              >
-                ×
-              </Text>
+              <Text style={styles.deleteText}>×</Text>
             </TouchableOpacity>
 
           </View>
@@ -209,7 +193,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#F7F2FF',
   },
 
-  /* Header */
   header: {
     paddingTop: 25,
     paddingBottom: 30,
@@ -238,7 +221,6 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
 
-  /* Input */
   inputContainer: {
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
@@ -246,7 +228,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 24,
     borderWidth: 1,
     borderColor: '#E5D9F2',
-    marginBottom: 36,
+    marginBottom: 20,
   },
 
   input: {
@@ -273,7 +255,35 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 
-  /* List Header */
+  filterContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginHorizontal: 24,
+    marginBottom: 25,
+    gap: 10,
+  },
+
+  filterButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    backgroundColor: '#EDE5F5',
+  },
+
+  activeFilter: {
+    backgroundColor: '#9B7BC1',
+  },
+
+  filterText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#77658C',
+  },
+
+  activeFilterText: {
+    color: '#FFFFFF',
+  },
+
   listHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -293,14 +303,12 @@ const styles = StyleSheet.create({
     color: '#8A78A6',
   },
 
-  /* FlatList */
   listContent: {
     paddingHorizontal: 24,
     paddingTop: 5,
     paddingBottom: 50,
   },
 
-  /* Task Card */
   taskCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -360,21 +368,11 @@ const styles = StyleSheet.create({
     lineHeight: 25,
   },
 
-  /* Empty State */
   emptyContainer: {
     alignItems: 'center',
     justifyContent: 'center',
     paddingTop: 70,
     paddingHorizontal: 20,
-  },
-
-  emptyIconCircle: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: '#EDE3F8',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 
   emptyIcon: {
@@ -398,4 +396,3 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
-```
